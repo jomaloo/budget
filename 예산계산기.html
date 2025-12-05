@@ -334,15 +334,23 @@
         }
         
         .form-group input,
-        .form-group select {
+        .form-group select,
+        .form-group textarea {
             width: 100%;
             padding: 8px;
             border: 1px solid #d0cece;
             font-size: 13px;
+            font-family: inherit;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
         }
         
         .form-group input:focus,
-        .form-group select:focus {
+        .form-group select:focus,
+        .form-group textarea:focus {
             outline: 2px solid #217346;
         }
         
@@ -370,26 +378,20 @@
             border-top: 1px solid #e7e6e6;
         }
         
-        .share-url-box {
-            margin-top: 15px;
+        .alert-box {
+            margin: 20px;
             padding: 15px;
-            background: #f8f9fa;
-            border: 1px solid #d0cece;
+            background: #e3f2fd;
+            border: 1px solid #0277bd;
             border-radius: 5px;
+            color: #01579b;
+            font-size: 13px;
         }
         
-        .share-url-box textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #d0cece;
-            font-size: 11px;
-            font-family: monospace;
-            resize: vertical;
-            min-height: 60px;
-        }
-        
-        .share-url-box button {
-            margin-top: 10px;
+        .alert-box strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #0277bd;
         }
         
         @media print {
@@ -404,6 +406,11 @@
         <div class="header">
             <h1>2026년 기후사업 리워드 카탈로그</h1>
             <p>키트 구성 및 단가 계산</p>
+        </div>
+        
+        <div class="alert-box">
+            <strong>💡 물품을 추가했다면?</strong>
+            "📥 HTML 내보내기" 버튼을 눌러 파일을 다운로드하고, GitHub에 다시 업로드하면 모두가 볼 수 있어요!
         </div>
         
         <div class="summary-panel">
@@ -434,7 +441,7 @@
                     <th style="width: 100px;">개당 단가</th>
                     <th style="width: 80px;">최소주문</th>
                     <th style="width: 100px;">계절</th>
-                    <th style="width: 200px;">비고</th>
+                    <th style="width: 200px;">나만 보는 비고</th>
                     <th style="width: 80px;">작업</th>
                 </tr>
             </thead>
@@ -450,10 +457,9 @@
                 <button class="btn" onclick="deselectAll()">☐ 전체 해제</button>
             </div>
             <div class="actions-right">
-                <button class="btn btn-warning" onclick="openShareModal()">🔗 공유 링크 생성</button>
+                <button class="btn btn-warning" onclick="exportHTML()">📥 HTML 내보내기</button>
                 <button class="btn btn-success" onclick="window.print()">🖨️ 인쇄</button>
                 <button class="btn" onclick="resetAll()">🔄 초기화</button>
-                <button class="btn btn-success" onclick="saveData()">💾 저장</button>
             </div>
         </div>
     </div>
@@ -495,34 +501,20 @@
                 <img id="imagePreview" class="image-preview" alt="미리보기">
                 <small>사진을 업로드하면 물품 이미지로 사용됩니다</small>
             </div>
+            <div class="form-group">
+                <label>비고 (모두에게 보임)</label>
+                <textarea id="newProductNote" placeholder="예: 3종 색상 랜덤 배송"></textarea>
+                <small>모든 사람이 볼 수 있는 설명 (선택사항)</small>
+            </div>
             <div class="modal-buttons">
                 <button class="btn" onclick="closeAddModal()">취소</button>
                 <button class="btn btn-success" onclick="addProduct()">추가</button>
             </div>
         </div>
     </div>
-    
-    <!-- 공유 링크 모달 -->
-    <div id="shareModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>공유 링크 생성</h2>
-            </div>
-            <p style="margin-bottom: 15px; color: #666; font-size: 13px;">
-                아래 링크를 복사해서 공유하면, 받은 사람도 똑같이 선택된 물품과 비고 내용을 볼 수 있습니다!
-            </p>
-            <div class="share-url-box">
-                <textarea id="shareUrl" readonly></textarea>
-                <button class="btn btn-success" onclick="copyShareUrl()">📋 링크 복사</button>
-            </div>
-            <div class="modal-buttons">
-                <button class="btn" onclick="closeShareModal()">닫기</button>
-            </div>
-        </div>
-    </div>
 
     <script>
-        // 제품 데이터
+        // 제품 데이터 - 여기가 모두에게 공유되는 기본 데이터
         let products = [
             {
                 id: 1,
@@ -533,7 +525,8 @@
                 url: 'http://www.greencommagift.com/product_w/product_view.asp?p_idx=4653905&a_code=&b_code=',
                 image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="75" viewBox="0 0 100 75"%3E%3Crect fill="%23f0f0f0" width="100" height="75"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="12" fill="%23999"%3E원파키트%3C/text%3E%3C/svg%3E',
                 selected: false,
-                note: ''
+                publicNote: '', // 모두가 보는 비고
+                privateNote: '' // 나만 보는 비고
             },
             {
                 id: 2,
@@ -544,7 +537,8 @@
                 url: 'https://adpanchok.co.kr/ez/mall.php?cat=001&query=view&no=142616',
                 image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="75" viewBox="0 0 100 75"%3E%3Crect fill="%23f0f0f0" width="100" height="75"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="11" fill="%23999"%3E에코백%3C/text%3E%3C/svg%3E',
                 selected: false,
-                note: ''
+                publicNote: '',
+                privateNote: ''
             },
             {
                 id: 3,
@@ -555,7 +549,8 @@
                 url: '',
                 image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="75" viewBox="0 0 100 75"%3E%3Crect fill="%23f0f0f0" width="100" height="75"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="11" fill="%23999"%3E노트%3C/text%3E%3C/svg%3E',
                 selected: false,
-                note: ''
+                publicNote: '',
+                privateNote: ''
             },
             {
                 id: 4,
@@ -566,7 +561,8 @@
                 url: 'https://adpanchok.co.kr/ez/mall.php?cat=005015005&query=view&no=153641',
                 image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="75" viewBox="0 0 100 75"%3E%3Crect fill="%23f0f0f0" width="100" height="75"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="11" fill="%23999"%3E클렌저%3C/text%3E%3C/svg%3E',
                 selected: false,
-                note: ''
+                publicNote: '',
+                privateNote: ''
             },
             {
                 id: 5,
@@ -577,7 +573,8 @@
                 url: 'http://www.greencommagift.com/product_w/product_view.asp?p_idx=4407646&a_code=&b_code=',
                 image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="75" viewBox="0 0 100 75"%3E%3Crect fill="%23f0f0f0" width="100" height="75"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="11" fill="%23999"%3E선풍기%3C/text%3E%3C/svg%3E',
                 selected: false,
-                note: ''
+                publicNote: '',
+                privateNote: ''
             }
         ];
         
@@ -590,88 +587,41 @@
             'winter': '겨울'
         };
         
-        // 페이지 로드 시 URL에서 공유 데이터 확인
-        function checkSharedData() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const sharedData = urlParams.get('data');
-            
-            if (sharedData) {
-                try {
-                    const decoded = JSON.parse(atob(sharedData));
-                    
-                    // 키트 수량 설정
-                    if (decoded.kitQuantity) {
-                        document.getElementById('kitQuantity').value = decoded.kitQuantity;
-                    }
-                    
-                    // 선택 및 비고 복원
-                    if (decoded.selections) {
-                        decoded.selections.forEach(sel => {
-                            const product = products.find(p => p.id === sel.id);
-                            if (product) {
-                                product.selected = true;
-                                product.note = sel.note || '';
-                            }
-                        });
-                    }
-                    
-                    alert('공유된 키트 구성을 불러왔습니다!');
-                } catch (e) {
-                    console.error('공유 데이터 로드 실패:', e);
-                }
-            }
-        }
-        
         // 데이터 로드
         function loadData() {
-            const saved = localStorage.getItem('catalogCalculator');
+            const saved = localStorage.getItem('privateData');
             if (saved) {
                 const data = JSON.parse(saved);
                 
-                // 저장된 물품 목록 병합
-                if (data.products) {
-                    // 기존 물품 업데이트
-                    data.products.forEach(savedProduct => {
-                        const existingProduct = products.find(p => p.id === savedProduct.id);
-                        if (existingProduct) {
-                            Object.assign(existingProduct, savedProduct);
-                        } else {
-                            // 새로 추가된 물품
-                            products.push(savedProduct);
-                        }
-                    });
-                }
-                
-                nextId = data.nextId || nextId;
-                
-                if (!new URLSearchParams(window.location.search).get('data')) {
-                    if (data.kitQuantity) {
-                        document.getElementById('kitQuantity').value = data.kitQuantity;
+                // 선택 상태와 나만 보는 비고만 복원
+                data.forEach(savedItem => {
+                    const product = products.find(p => p.id === savedItem.id);
+                    if (product) {
+                        product.selected = savedItem.selected;
+                        product.privateNote = savedItem.privateNote || '';
                     }
-                }
+                });
             }
             
-            checkSharedData();
             renderProducts();
             updateSummary();
         }
         
-        // 데이터 저장
-        function saveData() {
-            const data = {
-                products: products,
-                nextId: nextId,
-                kitQuantity: parseInt(document.getElementById('kitQuantity').value) || 100
-            };
-            localStorage.setItem('catalogCalculator', JSON.stringify(data));
-            alert('저장되었습니다!');
+        // 나만 보는 데이터 저장
+        function savePrivateData() {
+            const privateData = products.map(p => ({
+                id: p.id,
+                selected: p.selected,
+                privateNote: p.privateNote
+            }));
+            localStorage.setItem('privateData', JSON.stringify(privateData));
         }
         
         // 제품 렌더링
         function renderProducts() {
             const tbody = document.getElementById('productsBody');
             tbody.innerHTML = products.map(product => `
-                <tr class="${product.selected ? 'selected' : ''}">
+                <tr class="${product.selected ? 'selected' : ''}" title="${product.publicNote ? '비고: ' + product.publicNote : ''}">
                     <td class="checkbox-cell">
                         <input type="checkbox" ${product.selected ? 'checked' : ''} 
                                onchange="toggleSelect(${product.id})">
@@ -681,6 +631,7 @@
                         ${product.url ? 
                             `<a href="${product.url}" target="_blank" class="product-link">${product.name}</a>` : 
                             product.name}
+                        ${product.publicNote ? `<div style="font-size:10px; color:#666; margin-top:3px;">${product.publicNote}</div>` : ''}
                     </td>
                     <td class="product-price">${formatNumber(product.price)}원</td>
                     <td class="min-quantity">${product.minOrder}개</td>
@@ -690,9 +641,9 @@
                         </span>
                     </td>
                     <td>
-                        <input type="text" class="note-input" placeholder="비고 입력" 
-                               value="${product.note}" 
-                               onchange="updateNote(${product.id}, this.value)">
+                        <input type="text" class="note-input" placeholder="나만 보는 메모" 
+                               value="${product.privateNote || ''}" 
+                               onchange="updatePrivateNote(${product.id}, this.value)">
                     </td>
                     <td>
                         <button class="btn btn-danger" onclick="deleteProduct(${product.id})">삭제</button>
@@ -705,14 +656,16 @@
         function toggleSelect(id) {
             const product = products.find(p => p.id === id);
             product.selected = !product.selected;
+            savePrivateData();
             renderProducts();
             updateSummary();
         }
         
-        // 비고 업데이트
-        function updateNote(id, note) {
+        // 나만 보는 비고 업데이트
+        function updatePrivateNote(id, note) {
             const product = products.find(p => p.id === id);
-            product.note = note;
+            product.privateNote = note;
+            savePrivateData();
         }
         
         // 선택 항목 삭제
@@ -729,6 +682,7 @@
                         p.selected = false;
                     }
                 });
+                savePrivateData();
                 renderProducts();
                 updateSummary();
             }
@@ -736,7 +690,7 @@
         
         // 물품 삭제
         function deleteProduct(id) {
-            if (confirm('이 물품을 삭제하시겠습니까?')) {
+            if (confirm('이 물품을 목록에서 삭제하시겠습니까?\n\n다른 사람들도 보려면 "HTML 내보내기" 후 GitHub에 업로드해야 합니다.')) {
                 products = products.filter(p => p.id !== id);
                 renderProducts();
                 updateSummary();
@@ -746,6 +700,7 @@
         // 전체 선택
         function selectAll() {
             products.forEach(p => p.selected = true);
+            savePrivateData();
             renderProducts();
             updateSummary();
         }
@@ -755,6 +710,7 @@
             products.forEach(p => {
                 p.selected = false;
             });
+            savePrivateData();
             renderProducts();
             updateSummary();
         }
@@ -784,6 +740,7 @@
             document.getElementById('newProductMinOrder').value = '100';
             document.getElementById('newProductSeason').value = 'spring';
             document.getElementById('newProductUrl').value = '';
+            document.getElementById('newProductNote').value = '';
             document.getElementById('newProductImage').value = '';
             document.getElementById('imagePreview').style.display = 'none';
         }
@@ -800,6 +757,7 @@
             const minOrder = parseInt(document.getElementById('newProductMinOrder').value);
             const season = document.getElementById('newProductSeason').value;
             const url = document.getElementById('newProductUrl').value.trim();
+            const publicNote = document.getElementById('newProductNote').value.trim();
             const imageFile = document.getElementById('newProductImage').files[0];
             
             if (!name) {
@@ -821,17 +779,17 @@
             if (imageFile) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    addProductWithImage(name, price, minOrder, season, url, e.target.result);
+                    addProductWithImage(name, price, minOrder, season, url, publicNote, e.target.result);
                 };
                 reader.readAsDataURL(imageFile);
             } else {
                 // 기본 이미지
                 const defaultImage = `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="75" viewBox="0 0 100 75"%3E%3Crect fill="%23f0f0f0" width="100" height="75"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="11" fill="%23999"%3E${encodeURIComponent(name.substring(0, 4))}%3C/text%3E%3C/svg%3E`;
-                addProductWithImage(name, price, minOrder, season, url, defaultImage);
+                addProductWithImage(name, price, minOrder, season, url, publicNote, defaultImage);
             }
         }
         
-        function addProductWithImage(name, price, minOrder, season, url, image) {
+        function addProductWithImage(name, price, minOrder, season, url, publicNote, image) {
             products.push({
                 id: nextId++,
                 name: name,
@@ -840,56 +798,56 @@
                 season: season,
                 url: url,
                 image: image,
+                publicNote: publicNote,
                 selected: false,
-                note: ''
+                privateNote: ''
             });
             
             renderProducts();
             updateSummary();
             closeAddModal();
-            alert('물품이 추가되었습니다!');
+            alert('물품이 추가되었습니다!\n\n다른 사람들도 보려면:\n1. "📥 HTML 내보내기" 클릭\n2. 다운로드한 파일을 GitHub에 업로드');
         }
         
-        // 공유 링크 모달 열기
-        function openShareModal() {
-            const selectedProducts = products.filter(p => p.selected);
+        // HTML 내보내기
+        function exportHTML() {
+            // 현재 HTML 전체를 가져와서 products 배열만 업데이트
+            const htmlContent = document.documentElement.outerHTML;
             
-            if (selectedProducts.length === 0) {
-                alert('공유할 물품을 먼저 선택해주세요!');
-                return;
-            }
+            // products 배열을 문자열로 변환 (privateNote 제외)
+            const productsForExport = products.map(p => ({
+                id: p.id,
+                name: p.name,
+                price: p.price,
+                minOrder: p.minOrder,
+                season: p.season,
+                url: p.url,
+                image: p.image,
+                publicNote: p.publicNote,
+                selected: false,
+                privateNote: ''
+            }));
             
-            // 공유 데이터 생성
-            const shareData = {
-                kitQuantity: parseInt(document.getElementById('kitQuantity').value) || 100,
-                selections: selectedProducts.map(p => ({
-                    id: p.id,
-                    note: p.note
-                }))
-            };
+            const productsString = JSON.stringify(productsForExport, null, 12);
             
-            // Base64 인코딩
-            const encoded = btoa(JSON.stringify(shareData));
+            // HTML에서 products 배열 부분만 교체
+            const updatedHTML = htmlContent.replace(
+                /let products = \[[\s\S]*?\];/,
+                `let products = ${productsString};`
+            );
             
-            // URL 생성
-            const baseUrl = window.location.href.split('?')[0];
-            const shareUrl = `${baseUrl}?data=${encoded}`;
+            // Blob 생성 및 다운로드
+            const blob = new Blob([updatedHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '기후사업리워드카탈로그.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
             
-            document.getElementById('shareUrl').value = shareUrl;
-            document.getElementById('shareModal').style.display = 'block';
-        }
-        
-        // 공유 링크 모달 닫기
-        function closeShareModal() {
-            document.getElementById('shareModal').style.display = 'none';
-        }
-        
-        // 공유 링크 복사
-        function copyShareUrl() {
-            const textarea = document.getElementById('shareUrl');
-            textarea.select();
-            document.execCommand('copy');
-            alert('링크가 복사되었습니다!\n이 링크를 공유하면 다른 사람도 똑같이 볼 수 있어요.');
+            alert('HTML 파일이 다운로드되었습니다!\n\n다음 단계:\n1. GitHub 저장소로 이동\n2. 기존 HTML 파일 삭제\n3. 다운로드한 파일 업로드\n4. 완료! 이제 모두가 새 물품을 볼 수 있어요.');
         }
         
         // 요약 업데이트
@@ -915,9 +873,9 @@
             if (confirm('모든 선택을 초기화하시겠습니까?')) {
                 products.forEach(p => {
                     p.selected = false;
-                    p.note = '';
                 });
                 document.getElementById('kitQuantity').value = 100;
+                savePrivateData();
                 renderProducts();
                 updateSummary();
             }
@@ -926,12 +884,8 @@
         // 모달 외부 클릭 시 닫기
         window.onclick = function(event) {
             const addModal = document.getElementById('addModal');
-            const shareModal = document.getElementById('shareModal');
             if (event.target == addModal) {
                 closeAddModal();
-            }
-            if (event.target == shareModal) {
-                closeShareModal();
             }
         }
         
