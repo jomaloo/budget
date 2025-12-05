@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기후사업 리워드 카탈로그</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Malgun Gothic", "맑은 고딕", Arial, sans-serif;
+            background: #e9ecef;
+            color: #333;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border: 1px solid #c7c7c7;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: #217346;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .summary-panel {
+            background: #f8f9fa;
+            border-bottom: 2px solid #217346;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .summary-item {
+            background: white;
+            border: 1px solid #d0cece;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        
+        .summary-item .label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .summary-item .amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #217346;
+        }
+        
+        .summary-item .count {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .kit-quantity-panel {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        
+        .kit-quantity-panel .label {
+            font-size: 12px;
+            color: #856404;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .kit-quantity-panel input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ffc107;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .products-table th {
+            background: #e7e6e6;
+            border: 1px solid #d0cece;
+            padding: 12px 8px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .products-table td {
+            border: 1px solid #d0cece;
+            padding: 10px 8px;
+            font-size: 12px;
+            background: white;
+            text-align: center;
+        }
+        
+        .products-table tr:hover td {
+            background: #f5f5f5;
+        }
+        
+        .products-table tr.selected td {
+            background: #e8f5e9;
+        }
+        
+        .checkbox-cell {
+            width: 40px;
+        }
+        
+        .checkbox-cell input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .product-image {
+            width: 100px;
+            height: 75px;
+            object-fit: cover;
+            border: 1px solid #d0cece;
+        }
+        
+        .product-name {
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .product-link {
+            color: #0078d4;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .product-link:hover {
+            text-decoration: underline;
+        }
+        
+        .product-link::after {
+            content: " 🔗";
+            font-size: 10px;
+        }
+        
+        .product-price {
+            color: #217346;
+            font-weight: bold;
+        }
+        
+        .min-quantity {
+            color: #666;
+            font-size: 11px;
+        }
+        
+        .season-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .season-spring {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        
+        .season-summer {
+            background: #e3f2fd;
+            color: #0277bd;
+        }
+        
+        .season-winter {
+            background: #e0f2f1;
+            color: #00695c;
+        }
+        
+        .note-input {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #d0cece;
+            font-size: 12px;
+            font-family: inherit;
+        }
+        
+        .note-input:focus {
+            outline: 2px solid #217346;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #adadad;
+            background: #f3f3f3;
+            cursor: pointer;
+            font-size: 12px;
+            color: #333;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            background: #e1e1e1;
+        }
+        
+        .btn-danger {
+            background: #c5504b;
+            color: white;
+            border-color: #b04843;
+        }
+        
+        .btn-danger:hover {
+            background: #b04843;
+        }
+        
+        .btn-success {
+            background: #217346;
+            color: white;
+            border-color: #1e6b3e;
+        }
+        
+        .btn-success:hover {
+            background: #1e6b3e;
+        }
+        
+        .btn-primary {
+            background: #0078d4;
+            color: white;
+            border-color: #106ebe;
+        }
+        
+        .btn-primary:hover {
+            background: #106ebe;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+            border-color: #e0a800;
+        }
+        
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+        
+        .actions {
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #d0cece;
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+        }
+        
+        .actions-left {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .actions-right {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 5px;
+            border: 2px solid #217346;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e7e6e6;
+        }
+        
+        .modal-header h2 {
+            color: #217346;
+            font-size: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #d0cece;
+            font-size: 13px;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: 2px solid #217346;
+        }
+        
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+            font-size: 11px;
+        }
+        
+        .image-preview {
+            margin-top: 10px;
+            max-width: 200px;
+            max-height: 150px;
+            border: 1px solid #d0cece;
+            display: none;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e7e6e6;
+        }
+        
+        .share-url-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 1px solid #d0cece;
+            border-radius: 5px;
+        }
+        
+        .share-url-box textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d0cece;
+            font-size: 11px;
+            font-family: monospace;
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .share-url-box button {
+            margin-top: 10px;
+        }
+        
+        @media print {
+            .actions, .checkbox-cell, .modal {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>2026년 기후사업 리워드 카탈로그</h1>
+            <p>키트 구성 및 단가 계산</p>
+        </div>
+        
+        <div class="summary-panel">
+            <div class="summary-item">
+                <div class="label">선택한 물품</div>
+                <div class="count"><span id="selectedCount">0</span>개 항목</div>
+            </div>
+            <div class="summary-item">
+                <div class="label">키트 1개당 단가</div>
+                <div class="amount" id="kitUnitPrice">0원</div>
+            </div>
+            <div class="kit-quantity-panel">
+                <div class="label">키트 제작 수량</div>
+                <input type="number" id="kitQuantity" value="100" min="1" onchange="updateSummary()">
+            </div>
+            <div class="summary-item">
+                <div class="label">총 금액</div>
+                <div class="amount" id="totalAmount">0원</div>
+            </div>
+        </div>
+        
+        <table class="products-table">
+            <thead>
+                <tr>
+                    <th style="width: 40px;">선택</th>
+                    <th style="width: 110px;">사진</th>
+                    <th style="width: 200px;">물품명</th>
+                    <th style="width: 100px;">개당 단가</th>
+                    <th style="width: 80px;">최소주문</th>
+                    <th style="width: 100px;">계절</th>
+                    <th style="width: 200px;">비고</th>
+                    <th style="width: 80px;">작업</th>
+                </tr>
+            </thead>
+            <tbody id="productsBody">
+            </tbody>
+        </table>
+        
+        <div class="actions">
+            <div class="actions-left">
+                <button class="btn btn-primary" onclick="openAddModal()">➕ 물품 추가</button>
+                <button class="btn btn-danger" onclick="clearSelected()">🗑️ 선택 항목 삭제</button>
+                <button class="btn" onclick="selectAll()">☑️ 전체 선택</button>
+                <button class="btn" onclick="deselectAll()">☐ 전체 해제</button>
+            </div>
+            <div class="actions-right">
+                <button class="btn btn-warning" onclick="openShareModal()">🔗 공유 링크 생성</button>
+                <button class="btn btn-success" onclick="window.print()">🖨️ 인쇄</button>
+                <button class="btn" onclick="resetAll()">🔄 초기화</button>
+                <button class="btn btn-success" onclick="saveData()">💾 저장</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 물품 추가 모달 -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>물품 추가</h2>
+            </div>
+            <div class="form-group">
+                <label>물품명 *</label>
+                <input type="text" id="newProductName" placeholder="예: 핫팩">
+            </div>
+            <div class="form-group">
+                <label>개당 단가 (원) *</label>
+                <input type="number" id="newProductPrice" placeholder="예: 3000">
+            </div>
+            <div class="form-group">
+                <label>최소주문수량 *</label>
+                <input type="number" id="newProductMinOrder" placeholder="예: 100" value="100">
+            </div>
+            <div class="form-group">
+                <label>계절 *</label>
+                <select id="newProductSeason">
+                    <option value="spring">봄/가을</option>
+                    <option value="summer">여름</option>
+                    <option value="winter">겨울</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>링크 URL</label>
+                <input type="url" id="newProductUrl" placeholder="https://example.com/product">
+                <small>물품 구매 링크나 상세 페이지 URL (선택사항)</small>
+            </div>
+            <div class="form-group">
+                <label>사진 업로드</label>
+                <input type="file" id="newProductImage" accept="image/*" onchange="previewImage(event)">
+                <img id="imagePreview" class="image-preview" alt="미리보기">
+                <small>사진을 업로드하면 물품 이미지로 사용됩니다</small>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn" onclick="closeAddModal()">취소</button>
+                <button class="btn btn-success" onclick="addProduct()">추가</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 공유 링크 모달 -->
+    <div id="shareModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>공유 링크 생성</h2>
+            </div>
+            <p style="margin-bottom: 15px; color: #666; font-size: 13px;">
+                아래 링크를 복사해서 공유하면, 받은 사람도 똑같이 선택된 물품과 비고 내용을 볼 수 있습니다!
+            </p>
+            <div class="share-url-box">
+                <textarea id="shareUrl" readonly></textarea>
+                <button class="btn btn-success" onclick="copyShareUrl()">📋 링크 복사</button>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn" onclick="closeShareModal()">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 제품 데이터
+        let products = [
+            {
+                id: 1,
+                name: '원파키트',
+                price: 3160,
+                minOrder: 100,
+                season: 'spring',
+                url: 'http://www.greencommagift.com/product_w/product_view.asp?p_idx=4653905&a_code=&b_code=',
+                image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="75" viewBox="0 0 100 75"%3E%3Crect fill="%23f0f0f0" width="100" height="75"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="12" fill="%23999"%3E원파키트%3C/text%3E%3C/svg%3E',
+                selected: false,
+                note: ''
+            },
+            {
+                id: 2,
+                name: '보틀로만 에코백',
+                price: 2600,
+                minOrder: 100,
+                season: 'spring',
+                url: 'https://adpanchok.co.kr/ez/mall.php?cat=001&query=view&no=142616',
+                image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="75" viewBox="0 0 100 75"%3E%3Crect fill="%23f0f0f0" width="100" height="75"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="11" fill="%23999"%3E에코백%3C/text%3E%3C/svg%3E',
+                selected: false,
+                note: ''
+            },
+            {
+                id: 3,
+                name: '링크보틀 미니미 노트',
+                price: 2600,
+                minOrder: 100,
+                season: 'spring',
+                url: '',
+                image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="75" viewBox="0 0 100 75"%3E%3Crect fill="%23f0f0f0" width="100" height="75"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="11" fill="%23999"%3E노트%3C/text%3E%3C/svg%3E',
+                selected: false,
+                note: ''
+            },
+            {
+                id: 4,
+                name: '안심생활 건강 클렌저세트 5종',
+                price: 4670,
+                minOrder: 100,
+                season: 'spring',
+                url: 'https://adpanchok.co.kr/ez/mall.php?cat=005015005&query=view&no=153641',
+                image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="75" viewBox="0 0 100 75"%3E%3Crect fill="%23f0f0f0" width="100" height="75"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="11" fill="%23999"%3E클렌저%3C/text%3E%3C/svg%3E',
+                selected: false,
+                note: ''
+            },
+            {
+                id: 5,
+                name: '아이제트 충전식 선풍기',
+                price: 5184,
+                minOrder: 100,
+                season: 'summer',
+                url: 'http://www.greencommagift.com/product_w/product_view.asp?p_idx=4407646&a_code=&b_code=',
+                image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="75" viewBox="0 0 100 75"%3E%3Crect fill="%23f0f0f0" width="100" height="75"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="11" fill="%23999"%3E선풍기%3C/text%3E%3C/svg%3E',
+                selected: false,
+                note: ''
+            }
+        ];
+        
+        let nextId = 6;
+        
+        // 계절 이름 매핑
+        const seasonNames = {
+            'spring': '봄/가을',
+            'summer': '여름',
+            'winter': '겨울'
+        };
+        
+        // 페이지 로드 시 URL에서 공유 데이터 확인
+        function checkSharedData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sharedData = urlParams.get('data');
+            
+            if (sharedData) {
+                try {
+                    const decoded = JSON.parse(atob(sharedData));
+                    
+                    // 키트 수량 설정
+                    if (decoded.kitQuantity) {
+                        document.getElementById('kitQuantity').value = decoded.kitQuantity;
+                    }
+                    
+                    // 선택 및 비고 복원
+                    if (decoded.selections) {
+                        decoded.selections.forEach(sel => {
+                            const product = products.find(p => p.id === sel.id);
+                            if (product) {
+                                product.selected = true;
+                                product.note = sel.note || '';
+                            }
+                        });
+                    }
+                    
+                    alert('공유된 키트 구성을 불러왔습니다!');
+                } catch (e) {
+                    console.error('공유 데이터 로드 실패:', e);
+                }
+            }
+        }
+        
+        // 데이터 로드
+        function loadData() {
+            const saved = localStorage.getItem('catalogCalculator');
+            if (saved) {
+                const data = JSON.parse(saved);
+                
+                // 저장된 물품 목록 병합
+                if (data.products) {
+                    // 기존 물품 업데이트
+                    data.products.forEach(savedProduct => {
+                        const existingProduct = products.find(p => p.id === savedProduct.id);
+                        if (existingProduct) {
+                            Object.assign(existingProduct, savedProduct);
+                        } else {
+                            // 새로 추가된 물품
+                            products.push(savedProduct);
+                        }
+                    });
+                }
+                
+                nextId = data.nextId || nextId;
+                
+                if (!new URLSearchParams(window.location.search).get('data')) {
+                    if (data.kitQuantity) {
+                        document.getElementById('kitQuantity').value = data.kitQuantity;
+                    }
+                }
+            }
+            
+            checkSharedData();
+            renderProducts();
+            updateSummary();
+        }
+        
+        // 데이터 저장
+        function saveData() {
+            const data = {
+                products: products,
+                nextId: nextId,
+                kitQuantity: parseInt(document.getElementById('kitQuantity').value) || 100
+            };
+            localStorage.setItem('catalogCalculator', JSON.stringify(data));
+            alert('저장되었습니다!');
+        }
+        
+        // 제품 렌더링
+        function renderProducts() {
+            const tbody = document.getElementById('productsBody');
+            tbody.innerHTML = products.map(product => `
+                <tr class="${product.selected ? 'selected' : ''}">
+                    <td class="checkbox-cell">
+                        <input type="checkbox" ${product.selected ? 'checked' : ''} 
+                               onchange="toggleSelect(${product.id})">
+                    </td>
+                    <td><img src="${product.image}" class="product-image" alt="${product.name}"></td>
+                    <td class="product-name">
+                        ${product.url ? 
+                            `<a href="${product.url}" target="_blank" class="product-link">${product.name}</a>` : 
+                            product.name}
+                    </td>
+                    <td class="product-price">${formatNumber(product.price)}원</td>
+                    <td class="min-quantity">${product.minOrder}개</td>
+                    <td>
+                        <span class="season-badge season-${product.season}">
+                            ${seasonNames[product.season]}
+                        </span>
+                    </td>
+                    <td>
+                        <input type="text" class="note-input" placeholder="비고 입력" 
+                               value="${product.note}" 
+                               onchange="updateNote(${product.id}, this.value)">
+                    </td>
+                    <td>
+                        <button class="btn btn-danger" onclick="deleteProduct(${product.id})">삭제</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // 선택 토글
+        function toggleSelect(id) {
+            const product = products.find(p => p.id === id);
+            product.selected = !product.selected;
+            renderProducts();
+            updateSummary();
+        }
+        
+        // 비고 업데이트
+        function updateNote(id, note) {
+            const product = products.find(p => p.id === id);
+            product.note = note;
+        }
+        
+        // 선택 항목 삭제
+        function clearSelected() {
+            const selectedProducts = products.filter(p => p.selected);
+            if (selectedProducts.length === 0) {
+                alert('선택된 항목이 없습니다.');
+                return;
+            }
+            
+            if (confirm(`선택된 ${selectedProducts.length}개 항목을 해제하시겠습니까?`)) {
+                products.forEach(p => {
+                    if (p.selected) {
+                        p.selected = false;
+                    }
+                });
+                renderProducts();
+                updateSummary();
+            }
+        }
+        
+        // 물품 삭제
+        function deleteProduct(id) {
+            if (confirm('이 물품을 삭제하시겠습니까?')) {
+                products = products.filter(p => p.id !== id);
+                renderProducts();
+                updateSummary();
+            }
+        }
+        
+        // 전체 선택
+        function selectAll() {
+            products.forEach(p => p.selected = true);
+            renderProducts();
+            updateSummary();
+        }
+        
+        // 전체 해제
+        function deselectAll() {
+            products.forEach(p => {
+                p.selected = false;
+            });
+            renderProducts();
+            updateSummary();
+        }
+        
+        // 이미지 미리보기
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('imagePreview');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+        
+        // 물품 추가 모달 열기
+        function openAddModal() {
+            document.getElementById('addModal').style.display = 'block';
+            document.getElementById('newProductName').value = '';
+            document.getElementById('newProductPrice').value = '';
+            document.getElementById('newProductMinOrder').value = '100';
+            document.getElementById('newProductSeason').value = 'spring';
+            document.getElementById('newProductUrl').value = '';
+            document.getElementById('newProductImage').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+        }
+        
+        // 물품 추가 모달 닫기
+        function closeAddModal() {
+            document.getElementById('addModal').style.display = 'none';
+        }
+        
+        // 물품 추가
+        function addProduct() {
+            const name = document.getElementById('newProductName').value.trim();
+            const price = parseInt(document.getElementById('newProductPrice').value);
+            const minOrder = parseInt(document.getElementById('newProductMinOrder').value);
+            const season = document.getElementById('newProductSeason').value;
+            const url = document.getElementById('newProductUrl').value.trim();
+            const imageFile = document.getElementById('newProductImage').files[0];
+            
+            if (!name) {
+                alert('물품명을 입력해주세요.');
+                return;
+            }
+            
+            if (!price || price <= 0) {
+                alert('올바른 단가를 입력해주세요.');
+                return;
+            }
+            
+            if (!minOrder || minOrder <= 0) {
+                alert('올바른 최소주문수량을 입력해주세요.');
+                return;
+            }
+            
+            // 이미지 처리
+            if (imageFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    addProductWithImage(name, price, minOrder, season, url, e.target.result);
+                };
+                reader.readAsDataURL(imageFile);
+            } else {
+                // 기본 이미지
+                const defaultImage = `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="75" viewBox="0 0 100 75"%3E%3Crect fill="%23f0f0f0" width="100" height="75"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="11" fill="%23999"%3E${encodeURIComponent(name.substring(0, 4))}%3C/text%3E%3C/svg%3E`;
+                addProductWithImage(name, price, minOrder, season, url, defaultImage);
+            }
+        }
+        
+        function addProductWithImage(name, price, minOrder, season, url, image) {
+            products.push({
+                id: nextId++,
+                name: name,
+                price: price,
+                minOrder: minOrder,
+                season: season,
+                url: url,
+                image: image,
+                selected: false,
+                note: ''
+            });
+            
+            renderProducts();
+            updateSummary();
+            closeAddModal();
+            alert('물품이 추가되었습니다!');
+        }
+        
+        // 공유 링크 모달 열기
+        function openShareModal() {
+            const selectedProducts = products.filter(p => p.selected);
+            
+            if (selectedProducts.length === 0) {
+                alert('공유할 물품을 먼저 선택해주세요!');
+                return;
+            }
+            
+            // 공유 데이터 생성
+            const shareData = {
+                kitQuantity: parseInt(document.getElementById('kitQuantity').value) || 100,
+                selections: selectedProducts.map(p => ({
+                    id: p.id,
+                    note: p.note
+                }))
+            };
+            
+            // Base64 인코딩
+            const encoded = btoa(JSON.stringify(shareData));
+            
+            // URL 생성
+            const baseUrl = window.location.href.split('?')[0];
+            const shareUrl = `${baseUrl}?data=${encoded}`;
+            
+            document.getElementById('shareUrl').value = shareUrl;
+            document.getElementById('shareModal').style.display = 'block';
+        }
+        
+        // 공유 링크 모달 닫기
+        function closeShareModal() {
+            document.getElementById('shareModal').style.display = 'none';
+        }
+        
+        // 공유 링크 복사
+        function copyShareUrl() {
+            const textarea = document.getElementById('shareUrl');
+            textarea.select();
+            document.execCommand('copy');
+            alert('링크가 복사되었습니다!\n이 링크를 공유하면 다른 사람도 똑같이 볼 수 있어요.');
+        }
+        
+        // 요약 업데이트
+        function updateSummary() {
+            const selectedProducts = products.filter(p => p.selected);
+            const selectedCount = selectedProducts.length;
+            const kitUnitPrice = selectedProducts.reduce((sum, p) => sum + p.price, 0);
+            const kitQuantity = parseInt(document.getElementById('kitQuantity').value) || 0;
+            const total = kitUnitPrice * kitQuantity;
+            
+            document.getElementById('selectedCount').textContent = selectedCount;
+            document.getElementById('kitUnitPrice').textContent = formatNumber(kitUnitPrice) + '원';
+            document.getElementById('totalAmount').textContent = formatNumber(total) + '원';
+        }
+        
+        // 숫자 포맷
+        function formatNumber(num) {
+            return num.toLocaleString('ko-KR');
+        }
+        
+        // 초기화
+        function resetAll() {
+            if (confirm('모든 선택을 초기화하시겠습니까?')) {
+                products.forEach(p => {
+                    p.selected = false;
+                    p.note = '';
+                });
+                document.getElementById('kitQuantity').value = 100;
+                renderProducts();
+                updateSummary();
+            }
+        }
+        
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            const addModal = document.getElementById('addModal');
+            const shareModal = document.getElementById('shareModal');
+            if (event.target == addModal) {
+                closeAddModal();
+            }
+            if (event.target == shareModal) {
+                closeShareModal();
+            }
+        }
+        
+        // 초기화
+        loadData();
+    </script>
+</body>
+</html>
