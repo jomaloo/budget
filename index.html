@@ -395,7 +395,7 @@
         }
         
         @media print {
-            .actions, .checkbox-cell, .modal {
+            .actions, .checkbox-cell, .modal, .alert-box {
                 display: none !important;
             }
         }
@@ -668,7 +668,7 @@
             savePrivateData();
         }
         
-        // 선택 항목 삭제
+        // 선택 항목 삭제 (실제 삭제)
         function clearSelected() {
             const selectedProducts = products.filter(p => p.selected);
             if (selectedProducts.length === 0) {
@@ -676,22 +676,23 @@
                 return;
             }
             
-            if (confirm(`선택된 ${selectedProducts.length}개 항목을 해제하시겠습니까?`)) {
-                products.forEach(p => {
-                    if (p.selected) {
-                        p.selected = false;
-                    }
-                });
+            const productNames = selectedProducts.map(p => p.name).join('\n- ');
+            
+            if (confirm(`다음 ${selectedProducts.length}개 물품을 목록에서 완전히 삭제하시겠습니까?\n\n- ${productNames}\n\n삭제 후 "HTML 내보내기"를 하면 다른 사람들도 이 물품을 볼 수 없게 됩니다.`)) {
+                // 선택된 항목들을 배열에서 제거
+                products = products.filter(p => !p.selected);
                 savePrivateData();
                 renderProducts();
                 updateSummary();
             }
         }
         
-        // 물품 삭제
+        // 물품 삭제 (개별 삭제)
         function deleteProduct(id) {
-            if (confirm('이 물품을 목록에서 삭제하시겠습니까?\n\n다른 사람들도 보려면 "HTML 내보내기" 후 GitHub에 업로드해야 합니다.')) {
+            const product = products.find(p => p.id === id);
+            if (confirm(`"${product.name}"을(를) 목록에서 삭제하시겠습니까?\n\n삭제 후 "HTML 내보내기"를 하면 다른 사람들도 이 물품을 볼 수 없게 됩니다.`)) {
                 products = products.filter(p => p.id !== id);
+                savePrivateData();
                 renderProducts();
                 updateSummary();
             }
@@ -847,7 +848,7 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             
-            alert('HTML 파일이 다운로드되었습니다!\n\n다음 단계:\n1. GitHub 저장소로 이동\n2. 기존 HTML 파일 삭제\n3. 다운로드한 파일 업로드\n4. 완료! 이제 모두가 새 물품을 볼 수 있어요.');
+            alert('HTML 파일이 다운로드되었습니다!\n\n다음 단계:\n1. GitHub 저장소로 이동\n2. 기존 HTML 파일 삭제\n3. 다운로드한 파일 업로드\n4. 완료! 이제 모두가 최신 물품 목록을 볼 수 있어요.');
         }
         
         // 요약 업데이트
