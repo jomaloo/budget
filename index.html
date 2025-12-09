@@ -653,7 +653,8 @@
 
     <script>
         // 제품 데이터 - 여기가 모두에게 공유되는 기본 데이터
-        let products = [
+        // 기본 제품 데이터 (초기 데이터)
+        const initialProducts = [
           {
                     "id": 6,
                     "name": "한파키트(기모양말+기모장갑/터치)",
@@ -733,7 +734,9 @@
           }
 ];
         
-        let nextId = 6;
+        // 실제 사용할 products 배열 (localStorage에서 로드되거나 초기 데이터 사용)
+        let products = [];
+        let nextId = 13; // 마지막 ID + 1
         
         // 계절 이름 매핑
         const seasonNames = {
@@ -742,32 +745,30 @@
             'winter': '겨울'
         };
         
-        // 데이터 로드
+        // 데이터 로드 및 초기화
         function loadData() {
-            const saved = localStorage.getItem('privateData');
-            if (saved) {
-                const data = JSON.parse(saved);
-                
-                // 선택 상태만 복원
-                data.forEach(savedItem => {
-                    const product = products.find(p => p.id === savedItem.id);
-                    if (product) {
-                        product.selected = savedItem.selected;
-                    }
-                });
+            const savedProducts = localStorage.getItem('products');
+            
+            if (savedProducts) {
+                // 저장된 데이터가 있으면 사용
+                products = JSON.parse(savedProducts);
+                // nextId 계산
+                if (products.length > 0) {
+                    nextId = Math.max(...products.map(p => p.id)) + 1;
+                }
+            } else {
+                // 저장된 데이터가 없으면 초기 데이터 사용
+                products = JSON.parse(JSON.stringify(initialProducts)); // 깊은 복사
+                saveData();
             }
             
             renderProducts();
             updateSummary();
         }
         
-        // 선택 상태 저장
-        function savePrivateData() {
-            const privateData = products.map(p => ({
-                id: p.id,
-                selected: p.selected
-            }));
-            localStorage.setItem('privateData', JSON.stringify(privateData));
+        // 데이터 저장 (전체 products 배열 저장)
+        function saveData() {
+            localStorage.setItem('products', JSON.stringify(products));
         }
         
         // 제품 렌더링
@@ -818,7 +819,7 @@
         function toggleSelect(id) {
             const product = products.find(p => p.id === id);
             product.selected = !product.selected;
-            savePrivateData();
+            saveData();
             renderProducts();
             updateSummary();
         }
@@ -836,7 +837,7 @@
             if (confirm(`다음 ${selectedProducts.length}개 물품을 목록에서 완전히 삭제하시겠습니까?\n\n- ${productNames}\n\n삭제 후 "HTML 내보내기"를 하면 다른 사람들도 이 물품을 볼 수 없게 됩니다.`)) {
                 // 선택된 항목들을 배열에서 제거
                 products = products.filter(p => !p.selected);
-                savePrivateData();
+                saveData();
                 renderProducts();
                 updateSummary();
             }
@@ -847,7 +848,7 @@
             const product = products.find(p => p.id === id);
             if (confirm(`"${product.name}"을(를) 목록에서 삭제하시겠습니까?\n\n삭제 후 "HTML 내보내기"를 하면 다른 사람들도 이 물품을 볼 수 없게 됩니다.`)) {
                 products = products.filter(p => p.id !== id);
-                savePrivateData();
+                saveData();
                 renderProducts();
                 updateSummary();
             }
@@ -868,7 +869,7 @@
                 btn.textContent = '☐ 전체 해제';
             }
             
-            savePrivateData();
+            saveData();
             renderProducts();
             updateSummary();
         }
@@ -917,6 +918,7 @@
             
             // 정렬 표시 업데이트
             updateSortIndicators();
+            saveData();
             renderProducts();
         }
         
@@ -1040,10 +1042,11 @@
                 selected: false
             });
             
+            saveData();
             renderProducts();
             updateSummary();
             closeAddModal();
-            alert('물품이 추가되었습니다!\n\n다른 사람들도 보려면:\n1. "📥 HTML 내보내기" 클릭\n2. 다운로드한 파일을 GitHub에 업로드');
+            alert('물품이 추가되었습니다!\n\n✅ 브라우저에 자동 저장됨 (새로고침해도 유지)\n\n다른 사람들도 보려면:\n1. "📥 HTML 내보내기" 클릭\n2. 다운로드한 파일을 GitHub에 업로드');
         }
         
         // 수정 모달 열기
@@ -1130,10 +1133,11 @@
                     product.publicNote = publicNote;
                     product.image = e.target.result;
                     
+                    saveData();
                     renderProducts();
                     updateSummary();
                     closeEditModal();
-                    alert('물품이 수정되었습니다!\n\n다른 사람들도 보려면:\n1. "📥 HTML 내보내기" 클릭\n2. 다운로드한 파일을 GitHub에 업로드');
+                    alert('물품이 수정되었습니다!\n\n✅ 브라우저에 자동 저장됨 (새로고침해도 유지)\n\n다른 사람들도 보려면:\n1. "📥 HTML 내보내기" 클릭\n2. 다운로드한 파일을 GitHub에 업로드');
                 };
                 reader.readAsDataURL(imageFile);
             } else {
@@ -1145,10 +1149,11 @@
                 product.url = url;
                 product.publicNote = publicNote;
                 
+                saveData();
                 renderProducts();
                 updateSummary();
                 closeEditModal();
-                alert('물품이 수정되었습니다!\n\n다른 사람들도 보려면:\n1. "📥 HTML 내보내기" 클릭\n2. 다운로드한 파일을 GitHub에 업로드');
+                alert('물품이 수정되었습니다!\n\n✅ 브라우저에 자동 저장됨 (새로고침해도 유지)\n\n다른 사람들도 보려면:\n1. "📥 HTML 내보내기" 클릭\n2. 다운로드한 파일을 GitHub에 업로드');
             }
         }
         
@@ -1217,7 +1222,7 @@
                     p.selected = false;
                 });
                 document.getElementById('kitQuantity').value = 100;
-                savePrivateData();
+                saveData();
                 renderProducts();
                 updateSummary();
             }
